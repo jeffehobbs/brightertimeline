@@ -1,0 +1,17 @@
+---
+READ ME
+---
+
+To deploy:
+
+1) Get API Keys for the NewsAPI, Mercury Reader API, and create a Facebook app and get the API keys.
+
+2) Place those API keys in the "apikeys.txt" file.
+
+3) Install additional python libraries (I suggest via pip): requests, requests_cache, arrow.
+
+4) Run the "engine.py" file ("python engine.py"). 
+
+5) This will generate a set of .json files in the /data directory that contain metadata read by index.html.
+
+6) Play with the parameters to create your own set of aggregated/filtered news!
