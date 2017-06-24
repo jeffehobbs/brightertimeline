@@ -10,6 +10,6 @@ TO DEPLOY
 
 4) Run the "engine.py" file. This will generate a set of .json files in the /data directory read by index.html.
 
-6) Run "engine.py" on a timed schedule to keep your news up to date. Be mindful of API call limits!
+5) Set "engine.py" to run on a timed schedule to keep your news up to date. Be mindful of API call limits!
 
-7) Play with the parameters in "engine.py" and customize "index.html" to create your own set of aggregated/filtered news!
+6) Play with the parameters in "engine.py" and customize "index.html" to create your own set of aggregated/filtered news!
