@@ -8,10 +8,12 @@ To deploy:
 
 2) Place those API keys in the "apikeys.txt" file.
 
-3) Install additional python libraries (I suggest via pip): requests, requests_cache, arrow.
+3) Install additional python libraries, I suggest via pip: requests, requests_cache, arrow. (Use a venv, you animal.)
 
 4) Run the "engine.py" file ("python engine.py"). 
 
 5) This will generate a set of .json files in the /data directory that contain metadata read by index.html.
 
-6) Play with the parameters to create your own set of aggregated/filtered news!
+  5a) Run "engine.py" on a timed schedule to keep your news up to date. Be mindful of API call limits!
+
+6) Play with the parameters in "engine.py" to create your own set of aggregated/filtered news!
