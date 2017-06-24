@@ -14,6 +14,6 @@ To deploy:
 
 5) This will generate a set of .json files in the /data directory that contain metadata read by index.html.
 
-  5a) Run "engine.py" on a timed schedule to keep your news up to date. Be mindful of API call limits!
+6) Run "engine.py" on a timed schedule to keep your news up to date. Be mindful of API call limits!
 
-6) Play with the parameters in "engine.py" to create your own set of aggregated/filtered news!
+7) Play with the parameters in "engine.py" to create your own set of aggregated/filtered news!
