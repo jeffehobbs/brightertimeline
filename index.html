@@ -38,7 +38,8 @@
     <style>
 
         body, .modal-content {
-            background-color: #fcf0df
+            background-color: #fcf0df;
+            transition: background-color 1s;
         }
 
         h4, h5, .navbar-brand, .nav-link, .card-text, .modal-content {
@@ -78,6 +79,10 @@
 			height: 3px;
 		}
 
+        .navbar {
+            transition: background-color 1s;
+        }
+
         .navbar-brand {
             padding-top: .5rem;
         }
@@ -87,27 +92,35 @@
             border: 0px;
         }
 
+        .nav-item { 
+            text-align: right; 
+        }
+
         .card-title {
-            text-shadow: 0 1px 0 #333;
-            margin-bottom: 0.25rem;
+        	padding: 0.5rem;
+            /*text-shadow: 0 1px 0 #333;*/
+            margin-bottom: 0;
+            background-color: rgba(0,0,0,0.666);
+            border-radius: 0 0 0.25rem 0.25rem;
         }
 
         .card-img-overlay {
-            padding: 0.75rem;
+            padding: 0rem;
+            top: initial;
         }
 
         .card-img {
             width: 100%;
-       		-webkit-filter: brightness(0.90);
-   			-moz-filter: brightness(0.90);
-   			filter: brightness(0.90);
+       		-webkit-filter: brightness(1);
+   			-moz-filter: brightness(1);
+   			filter: brightness(1);
             transition: all 0.5s ease;
         }
 
         .card-img:hover {
-   			-webkit-filter: brightness(1);
-   			-moz-filter: brightness(1);
-   			filter: brightness(1);
+   			-webkit-filter: brightness(1.1);
+   			-moz-filter: brightness(1.1);
+   			filter: brightness(1.1);
         }        
 
         .card-text {
@@ -119,7 +132,11 @@
             and (max-device-width : 1024px)  { 
 
             h4 {
-                font-size: 1.0rem;
+                font-size: 1rem;
+            }
+
+            .card {
+                margin-bottom: 0.5rem !important;
             }
 
         }
@@ -130,7 +147,11 @@
             and (orientation : landscape) { 
 
              h4 {
-                font-size: 1.0rem;
+                font-size: 1.25rem;
+            }
+
+            .card {
+                margin-bottom: 0.5rem !important;
             }
 
         }
@@ -148,11 +169,17 @@
     <script>
 
     //globals
-    var LIMIT_STORIES = 8;
-    var MAX_IMAGE_WIDTH_PX = 355;
+    var LIMIT_STORIES = 17;
+    var MAX_IMAGE_WIDTH_PX = 357;
+    var PRELOADED_IMAGES = [];
+
     STRATEGIES = ["engagement", "word_count", "unix_timestamp"]
 
     $(document).ready(function(){
+
+        if(isMobileDevice()){
+            $("#about-link").html("About");
+        };
 
         $('.nav-link').on('click', function(){
             if (isMobileDevice()) {
@@ -168,11 +195,15 @@
             getData("all","engagement");
         }
 
+        preloadImages();
+
     });
 
     function getData(category,strategy){
 
         NProgress.start();
+
+        colorNavbar(category);
 
         $(".nav-item").removeClass("active");
         $(".nav-" + category).addClass("active");
@@ -181,12 +212,12 @@
 
         $.ajax({url: manifest_url, success: function(data) {
 
-            console.log("FOUND DATA FOR http://brightertimeline.com" + manifest_url );
+            //console.log("FOUND DATA FOR http://brightertimeline.com" + manifest_url );
             interpretData(data,strategy);
 
         }}).fail(function() {
 
-          console.log("NO DATA FOR http://brightertimeline.com" + manifest_url );
+          //console.log("NO DATA FOR http://brightertimeline.com" + manifest_url );
           
         });
 
@@ -207,10 +238,8 @@
             if ((relative_date.indexOf("Invalid date") !== -1) || (relative_date.indexOf("year") !== -1) || (relative_date.indexOf("in") !== -1)){
                 relative_date = "";
             };
-
-            if (article.resized_lead_image_status_code == "200") {
-                renderData(article, i, "stage");
-            };
+            
+            renderData(article, i, "stage");
 
             if (i == LIMIT_STORIES){
                 NProgress.done();
@@ -233,7 +262,7 @@
         	target_string = "target='_blank'"
         };
 
-        $("#" + placement).append("<div data-module-num='"+index_num+"' id='module-" + hash + "' class='card card-inverse invisible'><a " + target_string + " href='"+article.url+"'><img id='image-" + hash + "' class='card-img' src='"+article.resized_lead_image_url+"'><div class='card-img-overlay'><h4 class='card-title'>"+article.title+"</h4><p class='card-text'><small>"+relative_date+"</small></p></div></div>");
+        $("#" + placement).append("<div data-module-num='"+index_num+"' id='module-" + hash + "' class='card card-inverse invisible'><a " + target_string + " href='"+article.url+"'><img id='image-" + hash + "' class='card-img' src='"+article.resized_lead_image_url+"'><div class='card-img-overlay'><h4 class='card-title'>"+article.title+"</h4></div></div>");
 
         $("#image-" + hash).on('load', function() {
              //console.log("image loaded correctly"); 
@@ -244,6 +273,64 @@
         }).attr("src", $("#image-" + hash).attr("src"));   
 
     };
+
+    function colorNavbar(category){
+
+        if (category == "all"){
+            $("#brighter-nav").attr('style', 'background-color: #f0ad4e !important');
+            $("body").attr('style', 'background-color: #fcf0df !important');
+        } else if (category == "general"){
+            $("#brighter-nav").attr('style', 'background-color: #0275d8 !important');
+            $("body").attr('style', 'background-color: #daeeff !important');
+        } else if (category == "technology"){
+            $("#brighter-nav").attr('style', 'background-color: #4a525a !important');
+            $("body").attr('style', 'background-color: #edeff0 !important');
+        } else if (category == "entertainment"){
+            $("#brighter-nav").attr('style', 'background-color: #d9534f !important');
+            $("body").attr('style', 'background-color: #f8e1e0 !important');
+        } else if (category == "science-and-nature"){
+            $("#brighter-nav").attr('style', 'background-color: #654321 !important');
+            $("body").attr('style', 'background-color: #f9f4ee !important');
+        } else if (category == "sport"){
+            $("#brighter-nav").attr('style', 'background-color: #5bc0de !important');
+            $("body").attr('style', 'background-color: #eef8fc !important');
+        } else if (category == "gaming"){
+            $("#brighter-nav").attr('style', 'background-color: #563d7c !important');
+            $("body").attr('style', 'background-color: #efeaf5 !important');
+        } else if (category == "business"){
+            $("#brighter-nav").attr('style', 'background-color: #5cb85c !important');
+            $("body").attr('style', 'background-color: #e5f4e5 !important');
+        } else {
+            $("#brighter-nav").attr('style', 'background-color: #f0ad4e !important');
+            $("body").attr('style', 'background-color: #fcf0df !important');
+        };
+
+
+
+    };
+
+    function preloadImages(){
+
+        //console.log("PRELOADING IMAGES");
+
+        manifest_url = "/data/all_engagement.json";
+
+        $.ajax({url: manifest_url, success: function(data) {
+
+            for (var i =0; i < data.length; i++) {
+
+                //console.log("LOADING: " + data[i].resized_lead_image_url);
+                var img = new Image();
+                img.src = data[i].resized_lead_image_url;
+
+            };
+
+        }}).fail(function() {
+
+          //console.log("ERROR LOADING IMAGES FOR http://brightertimeline.com" + manifest_url );
+          
+        });
+    }
 
     //https://coderwall.com/p/i817wa/one-line-function-to-detect-mobile-devices-with-javascript
     function isMobileDevice(){
@@ -256,7 +343,7 @@
 
 <body>
 
-    <nav class="navbar navbar-toggleable-md navbar-inverse bg-warning sticky-top">
+    <nav id="brighter-nav" class="navbar navbar-toggleable-md navbar-inverse bg-warning sticky-top">
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsBrighter" aria-controls="navbarsBrighter" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -288,14 +375,14 @@
             </ul>
 			<ul class="navbar-nav">
 				<li class="nav-item" style="margin-top:3px">
-					<a class="nav-link" data-strategy="engagement" onclick="$('#about').modal();"><i class="fa fa-question-circle"></i></a>
+					<a id="about-link" class="nav-link" data-strategy="engagement" onclick="$('#about').modal();"><i class="fa fa-question-circle"></i></a>
 				</li>
 			</ul>
 
         </div>
     </nav>
 
-    <div class="container-fluid card-columns" id="stage"></div>
+    <div class="container card-columns" id="stage"></div>
 
 	<div id="about" class="modal fade">
 		<div class="modal-dialog" role="document">
@@ -307,7 +394,7 @@
 
 					<p><strong>Brighter Timeline</strong> gathers stories via the <a href="https://newsapi.org">NewsAPI</a>, filters the content via <a href="https://mercury.postlight.com/web-parser/">Mercury Web Parser</a>, and presents the most popular stories using the <a href="https://developers.facebook.com">Facebook API</a>, with image resizing via <a href="http://rsz.io">rsz.io</a>.</p>
 
-                    <p>Coding &amp; curation via <a href="mailto:jeffehobbs@gmail.com?subject=Brighter Timeline">jeffehobbs@gmail.com</a>.</p>
+					<p>Project by <a href="mailto:jeffehobbs@gmail.com?subject=Brighter Timeline">jeffehobbs@gmail.com</a>. Source code available via <a href="https://github.com/jeffehobbs/brightertimeline">Github</a>.</p>
                     
 				</div>
 				<div class="modal-footer">
@@ -318,5 +405,15 @@
 	</div>
 
 </body>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-100823267-1', 'auto');
+  ga('send', 'pageview');
+</script>
 
 </html>
