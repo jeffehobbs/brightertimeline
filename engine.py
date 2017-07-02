@@ -17,7 +17,6 @@ import requests_cache
 
 from urlparse import urlparse
 from HTMLParser import HTMLParser
-#from htmllaundry import strip_markup
 
 # set up logging, cache
 PATH = os.path.dirname(os.path.abspath(__file__))
@@ -39,12 +38,13 @@ TWITTER_ACCESS_TOKEN_SECRET = config.get('twitter', 'access_token_secret')
 
 # globals
 NEWS_CATEGORIES = ["general", "technology", "entertainment", "gaming", "music", "science-and-nature", "business", "sport"]
-URL_BLACKLIST = [".uk", "/wikis/", "www.aljazeera.com", "www.ft.com", "www.ladbible.com","www.sportbible.com","www.espncricinfo.com"]
+URL_BLACKLIST = [".uk", "/wikis/", "www.aljazeera.com", "www.ft.com", "www.ladbible.com","www.sportbible.com","www.espncricinfo.com", "twitter.com"]
+RESIZE_BLACKLIST = ["espncdn.com","aolcdn.com","guim.co.uk"]
 FILTER = ["Trump"]
 TIMESTAMP = time.strftime("%Y-%m-%d")
 UBER_MANIFEST = []
 MANIFEST = []
-THUMBNAIL_WIDTH = "355"
+THUMBNAIL_WIDTH = "357"
 IMAGE_MANIFEST = []
 
 # set up filter term(s)
@@ -132,18 +132,22 @@ def parseArticle(article,engagement,category,name):
 		print bcolors.WARNING + "ARTICLE ERROR: " + article["url"] + bcolors.ENDC
 
 def returnResizedImage(url):
-	full_lead_image_url = url
-	parsed_lead_image_url = urlparse(full_lead_image_url)
-	lead_image_url_domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_lead_image_url)
-	resized_lead_image_url_domain = lead_image_url_domain + ".rsz.io"
-	resized_lead_image_url = full_lead_image_url.replace(lead_image_url_domain,resized_lead_image_url_domain) + "?width=" + THUMBNAIL_WIDTH
-	resized_lead_image_url = resized_lead_image_url.replace("https","http")
-	r = requests.head(resized_lead_image_url)
-	status_code = r.status_code
-	return {'url':resized_lead_image_url, 'status_code':status_code }
+	if any(blacklisted_url in url for blacklisted_url in RESIZE_BLACKLIST):
+		return {'url':lead_image_url, 'status_code':200}
+	else:
+		full_lead_image_url = url
+		parsed_lead_image_url = urlparse(full_lead_image_url)
+		lead_image_url_domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_lead_image_url)
+		resized_lead_image_url_domain = lead_image_url_domain + ".rsz.io"
+		resized_lead_image_url = full_lead_image_url.replace(lead_image_url_domain,resized_lead_image_url_domain) + "?width=" + THUMBNAIL_WIDTH
+		resized_lead_image_url = resized_lead_image_url.replace("https","http")
+
+		r = requests.get(resized_lead_image_url)
+		status_code = r.status_code
+
+		return {'url':resized_lead_image_url, 'status_code':status_code }
 
 def writeJSON(category):
-
 	ENGAGEMENT_UBER_MANIFEST = sorted(UBER_MANIFEST, key=lambda k: k.get('engagement', 0), reverse=True)
 	ENGAGEMENT_MANIFEST = sorted(MANIFEST, key=lambda k: k.get('engagement', 0), reverse=True)
 
