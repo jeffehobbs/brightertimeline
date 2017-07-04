@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# filter.py // Jeff Hobbs // May 2016
-# create filtered set of recent news
+# engine.py // Jeff Hobbs // June 2016
+# create algorithmically filtered set of recent news
 
 import os
 import sys
@@ -31,16 +31,13 @@ NEWSAPIKEY = config.get('apikeys', 'newsapi_apikey')
 MERCURYAPIKEY = config.get('apikeys', 'mercury_apikey')
 SPARKPOST_APIKEY = config.get('apikeys', 'sparkpost_apikey')
 FACEBOOK_APIKEY = config.get('apikeys', 'facebook_apikey')
-TWITTER_CONSUMER_KEY = config.get('twitter', 'consumer_key')
-TWITTER_CONSUMER_SECRET = config.get('twitter', 'consumer_secret')
-TWITTER_ACCESS_TOKEN = config.get('twitter', 'access_token')
-TWITTER_ACCESS_TOKEN_SECRET = config.get('twitter', 'access_token_secret')
+GOOGLE_APIKEY = config.get('apikeys', 'google_apikey')
 
 # globals
 NEWS_CATEGORIES = ["general", "technology", "entertainment", "gaming", "music", "science-and-nature", "business", "sport"]
-URL_BLACKLIST = [".uk", "/wikis/", "www.aljazeera.com", "www.ft.com", "www.ladbible.com","www.sportbible.com","www.espncricinfo.com", "twitter.com"]
+URL_BLACKLIST = [".uk", "/wikis/", "www.aljazeera.com", "www.ft.com", "www.ladbible.com","www.sportbible.com","www.espncricinfo.com", "twitter.com", "wikipedia.org", "reddit.com"]
 RESIZE_BLACKLIST = ["espncdn.com","aolcdn.com","guim.co.uk"]
-FILTER = ["Trump"]
+FILTER = ["Trump", "murder", "manslaughter", "suicide", "dead"]
 TIMESTAMP = time.strftime("%Y-%m-%d")
 UBER_MANIFEST = []
 MANIFEST = []
@@ -69,7 +66,7 @@ def getSources(category,language):
 		try:
 			getArticles(source,category,name)
 		except:
-			print("Unexpected error:", sys.exc_info()[0])
+			print("UNEXPECTED ERROR:", sys.exc_info()[0])
 			print bcolors.WARNING + "SOURCE ERROR" + bcolors.ENDC
 
 # get URLs of articles from the source
@@ -99,6 +96,20 @@ def getFBData(url):
 	except:
 		return 0
 
+# make side trip to get sentiment data
+def getGoogleData(content):
+	#example API call: https://language.googleapis.com/v1/documents:analyzeSentiment?key=<key>
+	parameters = { 'key': GOOGLE_APIKEY}
+	doc = {"document": {"content": content, "type": "PLAIN_TEXT"}}
+	try:
+		r = requests.post('https://language.googleapis.com/v1/documents:analyzeSentiment', params=parameters, json=doc)
+		data = r.json()
+		score = data['documentSentiment']['score']
+		magnitude = data['documentSentiment']['magnitude']
+		return score, magnitude
+	except:
+		return 0
+
 # get content + metadata of article
 def parseArticle(article,engagement,category,name):
 	# example API call: https://mercury.postlight.com/parser?url=https://trackchanges.postlight.com/building-awesome-cms-f034344d8ed
@@ -110,9 +121,18 @@ def parseArticle(article,engagement,category,name):
 	try:
 		title = data["title"]
 		content = strip_tags(data["content"])
+
 		if (any(filter_word in content for filter_word in FILTER) or any(filter_word in title for filter_word in FILTER)):
 			print bcolors.FAIL + data["title"] + " [" + str(engagement) + "]" + bcolors.ENDC
 		else:
+
+			score, magnitude = getGoogleData(content)
+
+			if (score < 0):
+				return
+				
+			print bcolors.OKGREEN + data["title"] + " [" + str(engagement) + "],[" + str(score) +"],[" + str(magnitude) +"]" + bcolors.ENDC
+
 			try:
 				unix_timestamp = arrow.get(data["date_published"]).timestamp
 			except:
@@ -120,14 +140,13 @@ def parseArticle(article,engagement,category,name):
 
 			resized_lead_image_url = returnResizedImage(data["lead_image_url"])
 
-			entry = {"title": data["title"], "url": data["url"], "excerpt": data["excerpt"], "domain": data["domain"], "date_published": data["date_published"], "unix_timestamp": unix_timestamp, "lead_image_url": data["lead_image_url"], "resized_lead_image_url": resized_lead_image_url["url"], "resized_lead_image_status_code": resized_lead_image_url["status_code"], "word_count": data["word_count"], "engagement": engagement, "category": category, "name": name}
+			entry = {"title": data["title"], "url": data["url"], "excerpt": data["excerpt"], "domain": data["domain"], "date_published": data["date_published"], "unix_timestamp": unix_timestamp, "lead_image_url": data["lead_image_url"], "resized_lead_image_url": resized_lead_image_url["url"], "resized_lead_image_status_code": resized_lead_image_url["status_code"], "word_count": data["word_count"], "engagement": engagement, "category": category, "name": name, "score": score, "magnitude": magnitude}
 			image_entry = {"resized_lead_image_url": resized_lead_image_url, "engagement": engagement, "word_count": data["word_count"], "unix_timestamp": unix_timestamp}
 			
 			UBER_MANIFEST.append(entry)
 			MANIFEST.append(entry)
 			IMAGE_MANIFEST.append(image_entry)
-
-			print bcolors.OKGREEN + data["title"] + " [" + str(engagement) + "]" + bcolors.ENDC
+			
 	except:
 		print bcolors.WARNING + "ARTICLE ERROR: " + article["url"] + bcolors.ENDC
 
@@ -159,7 +178,6 @@ def writeJSON(category):
 
 	if category is "all":
 
-
 		with open(PATH + "/data/" + category + '_engagement.json', 'w') as outfile:
 			json.dump(ENGAGEMENT_UBER_MANIFEST, outfile, indent=4, sort_keys=True, separators=(',', ':'))
 		with open(PATH + "/data/" + category + '_word_count.json', 'w') as outfile:
@@ -176,7 +194,6 @@ def writeJSON(category):
 			json.dump(WORD_COUNT_MANIFEST, outfile, indent=4, sort_keys=True, separators=(',', ':'))
 		with open(PATH + "/data/" + category + '_unix_timestamp.json', 'w') as outfile:
 			json.dump(UNIX_TIMESTAMP_MANIFEST, outfile, indent=4, sort_keys=True, separators=(',', ':'))
-
 
 		print "----\nWRITING JSON FOR " + str(category) + "..."
 
