@@ -2,14 +2,16 @@
 TO DEPLOY
 ---
 
-1) Get API keys for the NewsAPI, Mercury Reader API, create a Facebook app and get the FB app's API keys.
+1) Get API keys for the NewsAPI, Mercury Reader API, Google Natural Language API, and create a Facebook app and get the FB app's API keys.
 
-2) Place those API keys in the "apikeys.txt" file.
+2) Place those API keys in the "apikeys.txt" file, replacing "000000" for each.
 
 3) Install additional python libraries: requests, requests_cache, arrow. (Use a venv, you animal.)
 
 4) Run the "engine.py" file. This will generate a set of .json files in the /data directory read by index.html.
 
-5) Set "engine.py" to run on a timed schedule to keep your news up to date. Be mindful of API call limits!
+5) Set "engine.py" to run on a timed schedule to keep your news up to date. Be mindful of API call limits! 
 
-6) Play with the parameters in "engine.py" and customize "index.html" to create your own set of aggregated/filtered news!
+5a) Also mind your Apache/web server permissions.
+
+6) Play with the parameters in "engine.py" and customize "index.html" to create your own set of aggregated/filtered news.
