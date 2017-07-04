@@ -111,16 +111,16 @@
 
         .card-img {
             width: 100%;
-       		-webkit-filter: brightness(1);
-   			-moz-filter: brightness(1);
-   			filter: brightness(1);
+       		-webkit-filter: brightness(0.85);
+   			-moz-filter: brightness(0.85);
+   			filter: brightness(0.85);
             transition: all 0.5s ease;
         }
 
         .card-img:hover {
-   			-webkit-filter: brightness(1.1);
-   			-moz-filter: brightness(1.1);
-   			filter: brightness(1.1);
+   			-webkit-filter: brightness(1.0);
+   			-moz-filter: brightness(1.0);
+   			filter: brightness(1.0);
         }        
 
         .card-text {
@@ -144,9 +144,9 @@
         @media only screen 
             and (min-device-width : 375px) 
             and (max-device-width : 667px) 
-            and (orientation : landscape) { 
+            and (orientation : portrait) { 
 
-             h4 {
+            h4 {
                 font-size: 1.25rem;
             }
 
@@ -155,6 +155,17 @@
             }
 
         }
+
+        @media only screen 
+			and (min-device-width : 375px) 
+			and (max-device-width : 667px) 
+			and (orientation : landscape) { 
+
+			h4 {
+                font-size: 0.75rem;
+            }
+
+		}
 
     </style>
 
@@ -193,10 +204,12 @@
             getData(hash,"engagement");
         } else {
             getData("all","engagement");
-        }
+        };
 
-        preloadImages();
-
+        setTimeout(function(){ 
+        	preloadImages();
+        }, 1000);
+        
     });
 
     function getData(category,strategy){
@@ -212,12 +225,12 @@
 
         $.ajax({url: manifest_url, success: function(data) {
 
-            //console.log("FOUND DATA FOR http://brightertimeline.com" + manifest_url );
+            console.log("FOUND DATA FOR http://brightertimeline.com" + manifest_url );
             interpretData(data,strategy);
 
         }}).fail(function() {
 
-          //console.log("NO DATA FOR http://brightertimeline.com" + manifest_url );
+          console.log("NO DATA FOR http://brightertimeline.com" + manifest_url );
           
         });
 
@@ -276,6 +289,8 @@
 
     function colorNavbar(category){
 
+        window.scrollTo(0,0);
+        
         if (category == "all"){
             $("#brighter-nav").attr('style', 'background-color: #f0ad4e !important');
             $("body").attr('style', 'background-color: #fcf0df !important');
@@ -392,7 +407,15 @@
 				</div>
 				<div class="modal-body">
 
-					<p><strong>Brighter Timeline</strong> gathers stories via the <a href="https://newsapi.org">NewsAPI</a>, filters the content via <a href="https://mercury.postlight.com/web-parser/">Mercury Web Parser</a>, and presents the most popular stories using the <a href="https://developers.facebook.com">Facebook API</a>, with image resizing via <a href="http://rsz.io">rsz.io</a>.</p>
+					<p><strong>Brighter Timeline</strong>:</p> 
+
+                    <ul>
+                        <li>gathers stories via the <a href="https://newsapi.org">NewsAPI</a></li>
+                        <li>filters the content via <a href="https://mercury.postlight.com/web-parser/">Mercury Web Parser</a></li>
+                        <li>checks content sentiment via <a href="https://cloud.google.com/natural-language/">Google Natural Language API</a></li>
+                        <li>sorts presentation using the <a href="https://developers.facebook.com">Facebook API</a></li>
+                        <li>resizes images via <a href="http://rsz.io">rsz.io</a></li>
+                    </ul>
 
 					<p>Project by <a href="mailto:jeffehobbs@gmail.com?subject=Brighter Timeline">jeffehobbs@gmail.com</a>. Source code available via <a href="https://github.com/jeffehobbs/brightertimeline">Github</a>.</p>
                     
