@@ -206,6 +206,7 @@
             getData("all","engagement");
         };
 
+        //post initial pageload functions
         setTimeout(function(){ 
         	preloadImages();
         }, 1000);
@@ -261,6 +262,7 @@
 
         };
 
+
         NProgress.done();
 
     };
@@ -274,8 +276,14 @@
         } else {
         	target_string = "target='_blank'"
         };
+ 
+        metrics = "<strong><i class=\"fa fa-facebook-official\"></i> Engagement:</strong> " + numberWithCommas(article.engagement) + "</br>" +
+        "<strong><i class=\"fa fa-thumbs-up\"></i> Sentiment:</strong> " + article.score + "</br>" +
+        "<strong><i class=\"fa fa-hand-o-up\"></i> Magnitude:</strong> " + article.magnitude + "</br>" +
+        "<strong><i class=\"fa fa-file-text\"></i> Word Count:</strong> " + numberWithCommas(article.word_count) + "</br>" +
+        "<strong><i class=\"fa fa-clock-o\"></i> Published:</strong> " + moment(article.date_published).fromNow() + "</br>";
 
-        $("#" + placement).append("<div data-module-num='"+index_num+"' id='module-" + hash + "' class='card card-inverse invisible'><a " + target_string + " href='"+article.url+"'><img id='image-" + hash + "' class='card-img' src='"+article.resized_lead_image_url+"'><div class='card-img-overlay'><h4 class='card-title'>"+article.title+"</h4></div></div>");
+        $("#" + placement).append("<div data-toggle='popover' title='Metrics' data-html='true' data-content='"+metrics+"' data-trigger='hover' data-delay='1000' data-placement='bottom' data-module-num='"+index_num+"' id='module-" + hash + "' class='card card-inverse invisible'><a " + target_string + " href='"+article.url+"'><img id='image-" + hash + "' class='card-img' src='"+article.resized_lead_image_url+"'><div class='card-img-overlay'><h4 class='card-title'>"+article.title+"</h4></div></div>");
 
         $("#image-" + hash).on('load', function() {
              //console.log("image loaded correctly"); 
@@ -320,7 +328,9 @@
             $("body").attr('style', 'background-color: #fcf0df !important');
         };
 
-
+        setTimeout(function(){ 
+            $('[data-toggle="popover"]').popover()
+        }, 500);
 
     };
 
@@ -350,6 +360,11 @@
     //https://coderwall.com/p/i817wa/one-line-function-to-detect-mobile-devices-with-javascript
     function isMobileDevice(){
         return (typeof window.orientation !== "undefined");
+    };
+
+    //https://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     };
 
     </script>
@@ -417,7 +432,7 @@
                         <li>resizes images via <a href="http://rsz.io">rsz.io</a></li>
                     </ul>
 
-					<p>Project by <a href="mailto:jeffehobbs@gmail.com?subject=Brighter Timeline">jeffehobbs@gmail.com</a>. Source code available via <a href="https://github.com/jeffehobbs/brightertimeline">Github</a>.</p>
+					<p>Project by <a href="mailto:jeffehobbs@gmail.com?subject=Brighter Timeline">jeffehobbs@gmail.com</a>. Examine the data <a href="/data/">here</a>. Source code available via <a href="https://github.com/jeffehobbs/brightertimeline">Github</a>.</p>
                     
 				</div>
 				<div class="modal-footer">
