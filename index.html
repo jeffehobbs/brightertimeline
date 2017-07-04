@@ -209,6 +209,9 @@
         //post initial pageload functions
         setTimeout(function(){ 
         	preloadImages();
+            if (!isMobileDevice()) {
+                $('[data-toggle="popover"]').popover()
+            };
         }, 1000);
         
     });
@@ -283,7 +286,7 @@
         "<strong><i class=\"fa fa-file-text\"></i> Word Count:</strong> " + numberWithCommas(article.word_count) + "</br>" +
         "<strong><i class=\"fa fa-clock-o\"></i> Published:</strong> " + moment(article.date_published).fromNow() + "</br>";
 
-        $("#" + placement).append("<div data-toggle='popover' title='Metrics' data-html='true' data-content='"+metrics+"' data-trigger='hover' data-delay='1000' data-placement='bottom' data-module-num='"+index_num+"' id='module-" + hash + "' class='card card-inverse invisible'><a " + target_string + " href='"+article.url+"'><img id='image-" + hash + "' class='card-img' src='"+article.resized_lead_image_url+"'><div class='card-img-overlay'><h4 class='card-title'>"+article.title+"</h4></div></div>");
+        $("#" + placement).append("<div data-toggle='popover' data-title='Metrics' data-html='true' data-content='"+metrics+"' data-trigger='hover' data-delay='1000' data-placement='bottom' data-module-num='"+index_num+"' id='module-" + hash + "' class='card card-inverse invisible'><a " + target_string + " href='"+article.url+"'><img id='image-" + hash + "' class='card-img' src='"+article.resized_lead_image_url+"'><div class='card-img-overlay'><h4 class='card-title'>"+article.title+"</h4></div></div>");
 
         $("#image-" + hash).on('load', function() {
              //console.log("image loaded correctly"); 
@@ -329,7 +332,9 @@
         };
 
         setTimeout(function(){ 
-            $('[data-toggle="popover"]').popover()
+            if (!isMobileDevice()) {
+                $('[data-toggle="popover"]').popover();
+            };
         }, 500);
 
     };
