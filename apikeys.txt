@@ -2,3 +2,4 @@
 newsapi_apikey = 000000
 mercury_apikey = 000000
 facebook_apikey = 000000|000000
+google_apikey = 000000
