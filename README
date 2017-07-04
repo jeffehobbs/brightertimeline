@@ -12,6 +12,8 @@ TO DEPLOY
 
 5) Set "engine.py" to run on a timed schedule to keep your news up to date. Be mindful of API call limits! 
 
-5a) Also mind your Apache/web server permissions.
+     5a) Also mind your Apache/web server permissions.
 
 6) Play with the parameters in "engine.py" and customize "index.html" to create your own set of aggregated/filtered news.
+
+    6a) (Use your own Google Analytics key, please)
